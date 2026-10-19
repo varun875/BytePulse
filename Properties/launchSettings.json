@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BytePulse (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BytePulse (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
