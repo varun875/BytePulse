@@ -1,13 +1,18 @@
 <Solution>
   <Configurations>
+    <Platform Name="Any CPU" />
     <Platform Name="ARM64" />
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
-  <Project Path="BytePulse.csproj">
+  <Project Path="src/BytePulse.App/BytePulse.csproj">
+    <Platform Solution="*|Any CPU" Project="x64" />
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
-    <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="src/BytePulse.Cli/BytePulse.Cli.csproj" />
+  <Project Path="src/BytePulse.Core/BytePulse.Core.csproj" />
+  <Project Path="tests/BytePulse.Benchmarks/BytePulse.Benchmarks.csproj" />
+  <Project Path="tests/BytePulse.Core.Tests/BytePulse.Core.Tests.csproj" />
+  <Project Path="tools/BytePulse.TreeGen/BytePulse.TreeGen.csproj" />
 </Solution>

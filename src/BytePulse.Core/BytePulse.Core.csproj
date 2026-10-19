@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>BytePulse.Core</RootNamespace>
+    <AssemblyName>BytePulse.Core</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>true</IsPackable>
+    <Description>BytePulse scanning engine: columnar index tree, parallel NTFS/SMB directory walker, optional MFT fast mode.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BytePulse.Core.Tests" />
+    <InternalsVisibleTo Include="BytePulse.Benchmarks" />
+  </ItemGroup>
+
+</Project>

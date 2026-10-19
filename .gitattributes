@@ -1,0 +1,21 @@
+* text=auto
+
+*.cs      text diff=csharp
+*.csproj  text
+*.slnx    text
+*.xaml    text
+*.json    text
+*.md      text
+*.props   text
+*.targets text
+*.config  text
+
+*.png     binary
+*.ico     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.pfx     binary
+*.p12     binary
+*.dll     binary
+*.exe     binary
