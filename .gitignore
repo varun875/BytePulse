@@ -57,3 +57,8 @@ _ReSharper*/
 # Generated files
 Generated\ Files/
 *_wpftmp.csproj
+
+# BenchmarkDotNet output
+BenchmarkDotNet.Artifacts/
+tests/**/BenchmarkDotNet.Artifacts/
+
