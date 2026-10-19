@@ -57,8 +57,19 @@ internal static class Win32
     /// <summary>The number of characters the file name field can hold, including the terminator.</summary>
     internal const int FindDataNameLength = 260;
 
-    /// <summary>The size of a <c>WIN32_FIND_DATAW</c> structure.</summary>
-    internal const int FindDataSize = FindDataNameOffset + (FindDataNameLength * 2);
+    /// <summary>The number of characters the alternate file name field can hold.</summary>
+    internal const int FindDataAlternateNameLength = 14;
+
+    /// <summary>
+    /// The size of a <c>WIN32_FIND_DATAW</c> structure.
+    /// </summary>
+    /// <remarks>
+    /// The structure is larger than the two name fields alone suggest: it also holds a
+    /// fourteen character alternate name after the main name, and the kernel writes the
+    /// whole structure, so the buffer has to be big enough for all of it.
+    /// </remarks>
+    internal const int FindDataSize =
+        FindDataNameOffset + (FindDataNameLength * 2) + (FindDataAlternateNameLength * 2);
 }
 
 /// <summary>The <c>FILETIME</c> structure, as two 32-bit halves.</summary>
