@@ -38,9 +38,14 @@
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem
-                    Content="Home"
+                    Content="Scan"
                     IsSelected="True"
-                    Tag="home">
+                    Tag="scan">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE721;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Home" Tag="home">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>

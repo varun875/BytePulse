@@ -40,6 +40,9 @@ namespace BytePulse
             {
                 switch (item.Tag)
                 {
+                    case "scan":
+                        NavFrame.Navigate(typeof(ScanPage));
+                        break;
                     case "home":
                         NavFrame.Navigate(typeof(HomePage));
                         break;

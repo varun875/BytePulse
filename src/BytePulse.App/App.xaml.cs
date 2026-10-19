@@ -34,6 +34,14 @@ namespace BytePulse
         {
             _window = new MainWindow();
             _window.Activate();
+
+            MainWindow = _window;
         }
+
+        /// <summary>
+        /// The application's main window, which the folder picker needs so it can be
+        /// shown as a child of the right window.
+        /// </summary>
+        public static Window? MainWindow { get; private set; }
     }
 }

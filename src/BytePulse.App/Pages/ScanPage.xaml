@@ -1,0 +1,106 @@
+<Page
+    x:Class="BytePulse.Pages.ScanPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="using:BytePulse.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:BytePulse.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:BytePulse.ViewModels"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="HeaderButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="4,4" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+    </Page.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="12,8,12,0">
+
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right" HorizontalAlignment="Left" Background="Transparent" Margin="0,0,0,4">
+            <AppBarButton Icon="Play" Label="Scan" Command="{x:Bind ViewModel.ScanCommand}" />
+            <AppBarButton Icon="Cancel" Label="Stop" Command="{x:Bind ViewModel.CancelCommand}" />
+            <AppBarSeparator />
+            <AppBarToggleButton Icon="Sort" Label="Folders first" IsChecked="{x:Bind ViewModel.DirectoriesFirst, Mode=TwoWay}" />
+        </CommandBar>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBox
+                Grid.Column="0"
+                PlaceholderText="The path to scan"
+                Text="{x:Bind ViewModel.Path, Mode=TwoWay}" />
+            <Button Grid.Column="1" Content="Browse..." Click="OnBrowse" Margin="8,0,0,0" />
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,90,70,130" ColumnSpacing="8" Margin="0,0,0,4">
+            <Button Grid.Column="0" Content="Name" Style="{StaticResource HeaderButton}" Click="OnSortName" />
+            <Button Grid.Column="1" Content="Size" Style="{StaticResource HeaderButton}" Click="OnSortSize" HorizontalContentAlignment="Right" />
+            <Button Grid.Column="2" Content="Files" Style="{StaticResource HeaderButton}" Click="OnSortFiles" HorizontalContentAlignment="Right" />
+            <Button Grid.Column="3" Content="Modified" Style="{StaticResource HeaderButton}" Click="OnSortModified" />
+        </Grid>
+
+        <ListView
+            Grid.Row="3"
+            x:Name="ResultsList"
+            ItemsSource="{x:Bind ViewModel.Rows}"
+            SelectionMode="Single"
+            IsItemClickEnabled="True"
+            ItemClick="OnItemClick"
+            HorizontalContentAlignment="Stretch">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:FileRow">
+                    <Grid Height="26" ColumnDefinitions="*,90,70,130" ColumnSpacing="8">
+                        <Grid Grid.Column="0" ColumnDefinitions="Auto,*">
+                            <FontIcon
+                                Grid.Column="0"
+                                Glyph="{x:Bind ChevronGlyph}"
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="11"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind HasChildren, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="{x:Bind Name}"
+                                VerticalAlignment="Center"
+                                Margin="{x:Bind Indent}"
+                                TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                        <TextBlock Grid.Column="1" Text="{x:Bind Size}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="2" Text="{x:Bind Files}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="{x:Bind Modified}" VerticalAlignment="Center" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,8,0,12">
+            <TextBlock
+                Grid.Column="0"
+                Text="{x:Bind ViewModel.StatusText}"
+                VerticalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                <TextBlock VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}">
+                    <Run Text="Total" />
+                </TextBlock>
+                <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}">
+                    <Run Text="{x:Bind ViewModel.TotalSizeText}" />
+                </TextBlock>
+                <TextBlock VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}">
+                    <Run Text="Files" />
+                </TextBlock>
+                <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}">
+                    <Run Text="{x:Bind ViewModel.TotalFiles}" />
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</Page>
