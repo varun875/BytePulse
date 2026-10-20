@@ -4,16 +4,61 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:BytePulse.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16,24,16" RowSpacing="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="About" />
-        <TextBlock Grid.Row="1" Text="This is the About page" />
-    </Grid>
+    <ScrollViewer Padding="24,16,24,24">
+        <StackPanel Spacing="20" MaxWidth="760" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <Image Source="ms-appx:///Assets/Square44x44Logo.targetsize-48_altform-lightunplated.png" Width="48" Height="48" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="BytePulse" />
+                    <TextBlock
+                        x:Name="VersionText"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{StaticResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock
+                Text="A fast, open source disk usage analyzer for Windows. It reads a file system into a compact tree and shows you what is using the space, as a grid, a tree, a map, or from the command line."
+                TextWrapping="Wrap"
+                Style="{StaticResource BodyTextBlockStyle}" />
+
+            <Border
+                Padding="16"
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                Background="{StaticResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="What it does not do" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="No telemetry, no advertising, no paid edition, and no network access. Scans happen on this machine and the results never leave it." TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="8">
+                <TextBlock Text="Licence" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock
+                    Text="MIT. You may use, change and redistribute BytePulse, including commercially, as long as the copyright notice and permission notice are kept."
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock Text="Built with" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock TextWrapping="Wrap">
+                    <Run Text="WinUI 3 and the Windows App SDK, .NET 10, and CommunityToolkit.Mvvm. The engine itself uses only the .NET base class library and Win32." />
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock Text="Third-party notices" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock
+                    Text="The packages BytePulse uses, and their licences, are listed in THIRD-PARTY-NOTICES.md in the repository."
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>

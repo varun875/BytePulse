@@ -24,6 +24,30 @@ internal static class ScanSession
     /// <summary>Raised when the session changes.</summary>
     public static event Action? Changed;
 
+    /// <summary>Raised when a page asks for a path to be scanned.</summary>
+    public static event Action<string>? ScanRequested;
+
+    /// <summary>
+    /// A path another page asked to scan. The scan page reads it when it loads and then
+    /// clears it.
+    /// </summary>
+    public static string? PendingPath { get; private set; }
+
+    /// <summary>Asks for a path to be scanned and shown.</summary>
+    public static void RequestScan(string path)
+    {
+        PendingPath = path;
+        ScanRequested?.Invoke(path);
+    }
+
+    /// <summary>Takes the pending path, if there is one.</summary>
+    public static string? TakePendingPath()
+    {
+        string? path = PendingPath;
+        PendingPath = null;
+        return path;
+    }
+
     /// <summary>Records a completed scan.</summary>
     public static void Set(ScanTree tree, string rootPath)
     {

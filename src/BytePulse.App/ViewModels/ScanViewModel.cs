@@ -79,11 +79,11 @@ public partial class ScanViewModel : ObservableObject
 
     /// <summary>The column the results are sorted by.</summary>
     [ObservableProperty]
-    public partial string SortColumn { get; set; } = "Size";
+    public partial string SortColumn { get; set; } = Services.SettingsStore.Current.SortColumn;
 
     /// <summary>Whether folders are listed before files.</summary>
     [ObservableProperty]
-    public partial bool DirectoriesFirst { get; set; } = true;
+    public partial bool DirectoriesFirst { get; set; } = Services.SettingsStore.Current.DirectoriesFirst;
 
     /// <summary>The total size, already formatted for display.</summary>
     public string TotalSizeText => ByteFormatter.Format(TotalBytes);
@@ -115,9 +115,11 @@ public partial class ScanViewModel : ObservableObject
 
         try
         {
+            ScanOptions options = Services.SettingsStore.ToScanOptions() with { Sort = CurrentSort };
+
             ScanResult result = await _scanner.ScanAsync(
                 new[] { Path },
-                new ScanOptions { Sort = CurrentSort },
+                options,
                 progress,
                 _cancellation.Token);
 
@@ -216,6 +218,20 @@ public partial class ScanViewModel : ObservableObject
     partial void OnIsScanningChanged(bool value) => ScanCommand.NotifyCanExecuteChanged();
 
     partial void OnTotalBytesChanged(long value) => OnPropertyChanged(nameof(TotalSizeText));
+
+    partial void OnDirectoriesFirstChanged(bool value)
+    {
+        Services.AppSettings settings = Services.SettingsStore.Current.Clone();
+        settings.DirectoriesFirst = value;
+        Services.SettingsStore.Save(settings);
+    }
+
+    partial void OnSortColumnChanged(string value)
+    {
+        Services.AppSettings settings = Services.SettingsStore.Current.Clone();
+        settings.SortColumn = value;
+        Services.SettingsStore.Save(settings);
+    }
 
     private void OnProgress(ScanProgress progress)
     {

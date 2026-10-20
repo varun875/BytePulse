@@ -20,10 +20,24 @@ public sealed partial class ScanPage : Page
         InitializeComponent();
 
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        Loaded += OnLoaded;
     }
 
     /// <summary>The state of the page.</summary>
     public ScanViewModel ViewModel { get; } = new();
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        string? pending = ScanSession.TakePendingPath();
+
+        if (string.IsNullOrEmpty(pending))
+        {
+            return;
+        }
+
+        ViewModel.Path = pending;
+        ViewModel.ScanCommand.Execute(null);
+    }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

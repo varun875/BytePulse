@@ -18,6 +18,28 @@ namespace BytePulse
             SetTitleBar(AppTitleBar);
             AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
             AppWindow.SetIcon("Assets/AppIcon.ico");
+
+            AppState.ScanSession.ScanRequested += OnScanRequested;
+        }
+
+        /// <summary>
+        /// Moves to the scan page when another page asks for a path to be scanned.
+        /// </summary>
+        private void OnScanRequested(string path)
+        {
+            NavigationViewItem? scanItem = NavView.MenuItems
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(item => (item.Tag as string) == "scan");
+
+            if (scanItem is not null && !ReferenceEquals(NavView.SelectedItem, scanItem))
+            {
+                // Selecting the item raises the navigation, which is what keeps the
+                // navigation pane in step with the page.
+                NavView.SelectedItem = scanItem;
+                return;
+            }
+
+            NavFrame.Navigate(typeof(ScanPage));
         }
 
         private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
