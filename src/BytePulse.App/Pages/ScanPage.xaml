@@ -46,8 +46,9 @@
             <Button Grid.Column="3" Content="Modified" Style="{StaticResource HeaderButton}" Click="OnSortModified" />
         </Grid>
 
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
         <ListView
-            Grid.Row="3"
+            Grid.Column="0"
             x:Name="ResultsList"
             ItemsSource="{x:Bind ViewModel.Rows}"
             SelectionMode="Single"
@@ -79,6 +80,15 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <ScrollViewer Grid.Column="1" Width="272" Margin="12,0,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Largest folders" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <Canvas x:Name="DonutCanvas" Width="240" Height="240" HorizontalAlignment="Left" />
+                <StackPanel x:Name="LegendPanel" Spacing="4" />
+            </StackPanel>
+        </ScrollViewer>
+        </Grid>
 
         <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,8,0,12">
             <TextBlock

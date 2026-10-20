@@ -125,6 +125,8 @@ public partial class ScanViewModel : ObservableObject
             _rowModel = new VisibleRowModel(result.Tree);
             _rowModel.CollectionChanged += OnRowsChanged;
 
+            AppState.ScanSession.Set(result.Tree, Path);
+
             TotalBytes = result.Tree.TotalLogicalSize;
             TotalFiles = result.Tree.TotalFileCount;
             TotalDirectories = result.Tree.TotalDirectoryCount;

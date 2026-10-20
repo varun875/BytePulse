@@ -43,6 +43,9 @@ namespace BytePulse
                     case "scan":
                         NavFrame.Navigate(typeof(ScanPage));
                         break;
+                    case "map":
+                        NavFrame.Navigate(typeof(MapPage));
+                        break;
                     case "home":
                         NavFrame.Navigate(typeof(HomePage));
                         break;
