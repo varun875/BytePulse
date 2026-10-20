@@ -58,7 +58,7 @@ jobs:
           name: BytePulse-win-x64
           path: |
             BytePulse-win-x64.zip
-            publish/cli/bytepulse.exe
+            publish/cli/bytepulse-cli.exe
 
       - name: Upload the test results
         if: always()

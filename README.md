@@ -129,8 +129,13 @@ zip is around 140 MB.
 
 ## Command line
 
+The release zip holds two programs side by side: `BytePulse.exe`, the window, and
+`bytepulse-cli.exe`, the command line tool. They are named differently on purpose:
+Windows file names are case insensitive, so a program called `bytepulse.exe` would
+replace the window's `BytePulse.exe`.
+
 ```
-bytepulse scan <path> [options]
+bytepulse-cli scan <path> [options]
 
   --json            write the results as JSON
   --csv             write the results as CSV
@@ -147,8 +152,8 @@ bytepulse scan <path> [options]
 For example:
 
 ```powershell
-bytepulse scan C:\ --top 20
-bytepulse scan D:\ --json | jq '.roots[0].children | sort_by(-.totalBytes)[:5]'
+bytepulse-cli scan C:\ --top 20
+bytepulse-cli scan D:\ --json | jq '.roots[0].children | sort_by(-.totalBytes)[:5]'
 ```
 
 Progress goes to standard error, so piping the results somewhere else stays clean.

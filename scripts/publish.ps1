@@ -65,7 +65,7 @@ dotnet publish $cli `
 $portable = Join-Path $output "BytePulse-$Version-$rid"
 New-Item -ItemType Directory -Path $portable | Out-Null
 Copy-Item -Recurse (Join-Path $output "app-$rid/*") $portable
-Copy-Item (Join-Path $output "cli-$rid/bytepulse.exe") $portable
+Copy-Item (Join-Path $output "cli-$rid/bytepulse-cli.exe") $portable
 Copy-Item (Join-Path $repo "LICENSE") $portable
 Copy-Item (Join-Path $repo "README.md") $portable
 
