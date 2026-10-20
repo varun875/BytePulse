@@ -35,6 +35,9 @@ internal static class Win32
     internal const int FindExInfoBasic = 1;
     internal const int FindExSearchNameMatch = 0;
 
+    /// <summary>The <c>FileStandardInfo</c> information class.</summary>
+    internal const int FileStandardInfo = 1;
+
     internal const int ERROR_FILE_NOT_FOUND = 2;
     internal const int ERROR_PATH_NOT_FOUND = 3;
     internal const int ERROR_ACCESS_DENIED = 5;
@@ -105,6 +108,17 @@ internal struct FileTime
 
     /// <summary>The largest file time that can be expressed as .NET ticks.</summary>
     private const ulong MaxFileTime = (ulong)(Win32.MaxDateTimeTicks - Win32.FileTimeEpochTicks);
+}
+
+/// <summary>Information about a file, as returned by <c>GetFileInformationByHandleEx</c>.</summary>
+[StructLayout(LayoutKind.Sequential)]
+internal struct FileStandardInformation
+{
+    public long AllocationSize;
+    public long EndOfFile;
+    public uint NumberOfLinks;
+    public byte DeletePending;
+    public byte Directory;
 }
 
 /// <summary>Information about a file, as returned by <c>GetFileInformationByHandle</c>.</summary>

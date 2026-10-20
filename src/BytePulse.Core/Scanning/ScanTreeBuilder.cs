@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text;
 using BytePulse.Core.Model;
 using BytePulse.Core.Storage;
 
@@ -150,6 +151,77 @@ public sealed class ScanTreeBuilder
     public void RecordError(ScanError error) => _errors.Enqueue(error);
 
     /// <summary>
+    /// Stops the name store accepting new names. Called before a pass that only reads the
+    /// tree, so name lookups no longer take a lock.
+    /// </summary>
+    public void FreezeNames() => _names.Freeze();
+
+    /// <summary>Whether a node is a directory.</summary>
+    public bool IsDirectory(int nodeId) => (_arena.Links[nodeId].Flags & NodeFlags.IsDirectory) != 0;
+
+    /// <summary>The node's flags.</summary>
+    public NodeFlags GetFlags(int nodeId) => _arena.Links[nodeId].Flags;
+
+    /// <summary>The node's name.</summary>
+    public string GetName(int nodeId) => _names.GetString(_arena.NameOffset[nodeId]);
+
+    /// <summary>The full path of a node.</summary>
+    public string GetPath(int nodeId)
+    {
+        var segments = new List<string>();
+        int current = nodeId;
+
+        while (current >= 0)
+        {
+            segments.Add(_names.GetString(_arena.NameOffset[current]));
+            current = _arena.Links[current].Parent;
+        }
+
+        segments.Reverse();
+
+        if (segments.Count == 1)
+        {
+            return segments[0];
+        }
+
+        var builder = new StringBuilder();
+        builder.Append(segments[0]);
+
+        for (int i = 1; i < segments.Count; i++)
+        {
+            builder.Append(Path.DirectorySeparatorChar);
+            builder.Append(segments[i]);
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>Records the space a file occupies on disk.</summary>
+    public void SetAllocatedSize(int nodeId, long bytes)
+    {
+        _arena.AllocatedSize[nodeId] = bytes;
+
+        NodeLinks links = _arena.Links[nodeId];
+        links.Flags |= NodeFlags.AllocatedSizeKnown;
+        _arena.Links[nodeId] = links;
+    }
+
+    /// <summary>Records how many hard links point at a file.</summary>
+    public void SetLinkCount(int nodeId, ushort count) => _arena.LinkCount[nodeId] = count;
+
+    /// <summary>Sets or clears a flag on a node.</summary>
+    public void SetFlag(int nodeId, NodeFlags flag, bool value)
+    {
+        NodeLinks links = _arena.Links[nodeId];
+
+        links.Flags = value
+            ? links.Flags | flag
+            : links.Flags & ~flag;
+
+        _arena.Links[nodeId] = links;
+    }
+
+    /// <summary>
     /// Finalizes the tree: accumulates subtree totals and prepares the child index.
     /// </summary>
     public ScanTree Build(SortSpecification sort)
@@ -208,9 +280,19 @@ public sealed class ScanTreeBuilder
             }
             else
             {
-                aggregateLogicalSize[parentRow] += _arena.LogicalSize[id];
-                aggregateAllocatedSize[parentRow] += _arena.AllocatedSize[id];
-                aggregateFileCount[parentRow]++;
+                // A hard linked file has one name for each link. Counting every name would
+                // report the same bytes several times, so only the first name found accounts
+                // for the file; the others are shown but contribute nothing.
+                NodeFlags flags = _arena.Links[id].Flags;
+                bool alreadyCounted = (flags & NodeFlags.HasHardLinks) != 0
+                    && (flags & NodeFlags.IsPrimaryLink) == 0;
+
+                if (!alreadyCounted)
+                {
+                    aggregateLogicalSize[parentRow] += _arena.LogicalSize[id];
+                    aggregateAllocatedSize[parentRow] += _arena.AllocatedSize[id];
+                    aggregateFileCount[parentRow]++;
+                }
             }
         }
 

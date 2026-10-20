@@ -34,4 +34,16 @@ public sealed record ScanOptions
 
     /// <summary>Whether system files are included.</summary>
     public bool IncludeSystemFiles { get; init; } = true;
+
+    /// <summary>
+    /// Whether to read how much space each file occupies on disk. This opens every file,
+    /// so it is off by default and is much slower than the walk itself.
+    /// </summary>
+    public bool ComputeSizeOnDisk { get; init; }
+
+    /// <summary>
+    /// Whether to work out which files have more than one hard link, so a file that is
+    /// reachable by several names is only counted once.
+    /// </summary>
+    public bool DetectHardlinks { get; init; }
 }

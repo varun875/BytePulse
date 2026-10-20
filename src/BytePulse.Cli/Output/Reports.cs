@@ -45,7 +45,9 @@ internal static class SummaryReport
             $"{ByteFormatter.FormatCount((long)result.EntriesPerSecond, "entry", "entries")} per second");
         Console.WriteLine();
 
-        var rows = new List<(string Path, long Size, int Files)>();
+        var rows = new List<(string Path, long Size, long OnDisk, int Files)>();
+
+        bool showOnDisk = tree.TotalAllocatedSize > 0;
 
         foreach (int rootId in tree.RootNodeIds)
         {
@@ -58,13 +60,30 @@ internal static class SummaryReport
 
         const int pathWidth = 60;
 
-        Console.WriteLine($"  {"Size",12}  {"Files",10}  {"Path",-pathWidth}");
-        Console.WriteLine($"  {new string('-', 12)}  {new string('-', 10)}  {new string('-', pathWidth)}");
+        if (showOnDisk)
+        {
+            Console.WriteLine($"  {"Size",12}  {"On disk",12}  {"Files",10}  {"Path",-pathWidth}");
+            Console.WriteLine($"  {new string('-', 12)}  {new string('-', 12)}  {new string('-', 10)}  {new string('-', pathWidth)}");
+        }
+        else
+        {
+            Console.WriteLine($"  {"Size",12}  {"Files",10}  {"Path",-pathWidth}");
+            Console.WriteLine($"  {new string('-', 12)}  {new string('-', 10)}  {new string('-', pathWidth)}");
+        }
 
         for (int i = 0; i < count; i++)
         {
-            (string path, long size, int files) = rows[i];
-            Console.WriteLine($"  {ByteFormatter.Format(size),12}  {files,10:N0}  {Trim(path, pathWidth)}");
+            (string path, long size, long onDisk, int files) = rows[i];
+
+            if (showOnDisk)
+            {
+                Console.WriteLine(
+                    $"  {ByteFormatter.Format(size),12}  {ByteFormatter.Format(onDisk),12}  {files,10:N0}  {Trim(path, pathWidth)}");
+            }
+            else
+            {
+                Console.WriteLine($"  {ByteFormatter.Format(size),12}  {files,10:N0}  {Trim(path, pathWidth)}");
+            }
         }
 
         if (rows.Count > count)
@@ -75,7 +94,7 @@ internal static class SummaryReport
         WriteErrors(result);
     }
 
-    private static void Collect(ScanTree tree, int nodeId, string prefix, List<(string Path, long Size, int Files)> rows)
+    private static void Collect(ScanTree tree, int nodeId, string prefix, List<(string Path, long Size, long OnDisk, int Files)> rows)
     {
         foreach (int child in tree.GetSortedChildren(nodeId))
         {
@@ -83,7 +102,7 @@ internal static class SummaryReport
             string path = prefix.Length == 0 ? name : prefix + "\\" + name;
 
             ScanNode node = tree.GetNode(child);
-            rows.Add((path, node.TotalLogicalSize, node.TotalFileCount));
+            rows.Add((path, node.TotalLogicalSize, node.TotalAllocatedSize, node.TotalFileCount));
 
             Collect(tree, child, path, rows);
         }

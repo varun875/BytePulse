@@ -26,6 +26,8 @@ internal static class ScanCommand
         var topOption = new Option<int>("--top") { Description = "How many entries the summary lists." };
         var followOption = new Option<bool>("--follow-reparse") { Description = "Follow junctions and symbolic links." };
         var hiddenOption = new Option<bool>("--no-hidden") { Description = "Leave hidden and system files out." };
+        var sizeOnDiskOption = new Option<bool>("--size-on-disk") { Description = "Read how much space each file occupies on disk." };
+        var hardlinkOption = new Option<bool>("--hardlinks") { Description = "Count a file with several hard links once." };
         var versionOption = new Option<bool>("--version") { Description = "Print the version and exit." };
 
         command.Arguments.Add(pathArgument);
@@ -37,6 +39,8 @@ internal static class ScanCommand
         command.Options.Add(topOption);
         command.Options.Add(followOption);
         command.Options.Add(hiddenOption);
+        command.Options.Add(sizeOnDiskOption);
+        command.Options.Add(hardlinkOption);
         command.Options.Add(versionOption);
 
         command.SetAction(async (parseResult, cancellationToken) =>
@@ -62,6 +66,8 @@ internal static class ScanCommand
                 FollowReparsePoints = parseResult.GetValue(followOption),
                 IncludeHiddenFiles = !parseResult.GetValue(hiddenOption),
                 IncludeSystemFiles = !parseResult.GetValue(hiddenOption),
+                ComputeSizeOnDisk = parseResult.GetValue(sizeOnDiskOption),
+                DetectHardlinks = parseResult.GetValue(hardlinkOption),
             };
 
             int top = parseResult.GetValue(topOption) > 0 ? parseResult.GetValue(topOption) : 25;

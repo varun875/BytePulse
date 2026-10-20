@@ -45,4 +45,12 @@ internal static partial class Interop
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetFileInformationByHandle(SafeFileHandle file, out ByHandleFileInformation information);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool GetFileInformationByHandleEx(
+        SafeFileHandle file,
+        int informationClass,
+        out FileStandardInformation information,
+        uint length);
 }

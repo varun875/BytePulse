@@ -87,6 +87,12 @@ public sealed class DirectoryScanner : IScanner
             worker.Join();
         }
 
+        if (!cancellationToken.IsCancellationRequested
+            && (effective.ComputeSizeOnDisk || effective.DetectHardlinks))
+        {
+            FileDetailsEnricher.Apply(builder, effective, progress, cancellationToken);
+        }
+
         stopwatch.Stop();
         reporter.Report(force: true);
 
