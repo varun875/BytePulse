@@ -20,12 +20,6 @@ public sealed record ScanOptions
     /// <summary>The deepest level of directories to descend into.</summary>
     public int MaxDepth { get; init; } = 256;
 
-    /// <summary>
-    /// The largest number of directories that may be waiting to be read at once. This
-    /// bounds the memory the walk uses on a tree with very many directories.
-    /// </summary>
-    public int MaxQueuedDirectories { get; init; } = 65_536;
-
     /// <summary>The order the results are sorted in.</summary>
     public SortSpecification Sort { get; init; } = SortSpecification.Default;
 

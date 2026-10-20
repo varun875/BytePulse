@@ -9,77 +9,44 @@ namespace BytePulse.Core.Scanning;
 internal readonly record struct DirectoryWorkItem(int NodeId, string Path, int Depth);
 
 /// <summary>
-/// A queue of directories waiting to be read, shared by the workers of a scan.
+/// The directories a scan has found but not yet read, shared by its workers.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The number of directories that may be outstanding at once is bounded, so a tree with
-/// very many directories cannot make the walk use an unbounded amount of memory. A worker
-/// waits for room before it queues more work, and the wait always ends because the
-/// directories already in flight are read and released.
+/// This is deliberately the simplest thing that can work. A directory is counted when it
+/// is queued and uncounted when it has been read, so <see cref="Pending"/> reaches zero
+/// only when there is nothing left to do anywhere. A worker that finds the queue empty
+/// keeps waiting while <see cref="Pending"/> is not zero, because a non-zero count means
+/// some directory is either queued or being read by another worker, and both of those
+/// states always end.
 /// </para>
 /// <para>
-/// The queue never blocks a worker that is reading a directory, so the workers can never
-/// deadlock against each other.
+/// Nothing here blocks. An earlier version bounded the queue and made a worker wait for
+/// room before it could queue more, which deadlocked as soon as the queue filled with
+/// work that only the waiting workers could have drained.
 /// </para>
 /// </remarks>
-internal sealed class WorkQueue : IDisposable
+internal sealed class WorkQueue
 {
     private readonly ConcurrentQueue<DirectoryWorkItem> _items = new();
-    private readonly SemaphoreSlim _available = new(0);
-    private readonly int _maxOutstanding;
-    private int _outstanding;
-
-    public WorkQueue(int maxOutstanding)
-    {
-        _maxOutstanding = Math.Max(1, maxOutstanding);
-    }
+    private int _pending;
 
     /// <summary>The number of directories queued or being read.</summary>
-    public int Outstanding => Volatile.Read(ref _outstanding);
+    public int Pending => Volatile.Read(ref _pending);
 
     /// <summary>Whether the queue holds no directories.</summary>
     public bool IsEmpty => _items.IsEmpty;
 
-    /// <summary>Queues a directory to be read.</summary>
-    public void Enqueue(DirectoryWorkItem item)
+    /// <summary>Queues a directory and counts it as work to be done.</summary>
+    public void Add(DirectoryWorkItem item)
     {
-        while (Volatile.Read(ref _outstanding) >= _maxOutstanding)
-        {
-            Thread.Sleep(1);
-        }
-
-        Interlocked.Increment(ref _outstanding);
+        Interlocked.Increment(ref _pending);
         _items.Enqueue(item);
-        _available.Release();
     }
 
-    /// <summary>
-    /// Takes the next directory to read.
-    /// </summary>
-    /// <returns>False when nothing became available within the wait.</returns>
-    public bool TryDequeue(out DirectoryWorkItem item)
-    {
-        if (_available.Wait(20))
-        {
-            if (_items.TryDequeue(out item))
-            {
-                return true;
-            }
-        }
+    /// <summary>Takes the next directory, if there is one.</summary>
+    public bool TryTake(out DirectoryWorkItem item) => _items.TryDequeue(out item);
 
-        item = default;
-        return false;
-    }
-
-    /// <summary>Releases the slot a finished directory was holding.</summary>
-    public void Complete()
-    {
-        Interlocked.Decrement(ref _outstanding);
-    }
-
-    public void Dispose()
-    {
-        _available.Dispose();
-    }
+    /// <summary>Records that a queued directory has been read.</summary>
+    public void Complete() => Interlocked.Decrement(ref _pending);
 }

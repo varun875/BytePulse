@@ -51,7 +51,7 @@ public partial class ScanViewModel : ObservableObject
 
     /// <summary>The path to scan.</summary>
     [ObservableProperty]
-    public partial string Path { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    public partial string Path { get; set; } = SystemDrive;
 
     /// <summary>Whether a scan is running.</summary>
     [ObservableProperty]
@@ -87,6 +87,13 @@ public partial class ScanViewModel : ObservableObject
 
     /// <summary>The total size, already formatted for display.</summary>
     public string TotalSizeText => ByteFormatter.Format(TotalBytes);
+
+    /// <summary>
+    /// The root of the drive Windows is installed on, which is the whole machine as far
+    /// as the user is concerned.
+    /// </summary>
+    private static string SystemDrive =>
+        System.IO.Path.GetPathRoot(Environment.SystemDirectory) ?? @"C:\";
 
     /// <summary>The rows shown in the grid.</summary>
     public ObservableCollection<FileRow> Rows { get; } = [];

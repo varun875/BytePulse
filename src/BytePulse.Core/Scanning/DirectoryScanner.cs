@@ -55,7 +55,7 @@ public sealed class DirectoryScanner : IScanner
         var followedTargets = new ConcurrentDictionary<FileIdentity, byte>();
         var stopwatch = Stopwatch.StartNew();
 
-        using var queue = new WorkQueue(effective.MaxQueuedDirectories);
+        var queue = new WorkQueue();
 
         foreach (string root in roots)
         {
@@ -65,7 +65,7 @@ public sealed class DirectoryScanner : IScanner
             }
 
             int rootId = builder.AddEntry(-1, 0, CreateRootEntry(root));
-            queue.Enqueue(new DirectoryWorkItem(rootId, root, 0));
+            queue.Add(new DirectoryWorkItem(rootId, root, 0));
         }
 
         int workerCount = Math.Max(1, effective.ThreadCount);
@@ -128,13 +128,16 @@ public sealed class DirectoryScanner : IScanner
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (!queue.TryDequeue(out DirectoryWorkItem work))
+            if (!queue.TryTake(out DirectoryWorkItem work))
             {
-                if (queue.IsEmpty && queue.Outstanding == 0)
+                // Nothing is queued. If nothing is in flight either, the scan is done;
+                // otherwise another worker is reading a directory and will queue more.
+                if (queue.Pending == 0)
                 {
                     break;
                 }
 
+                Thread.Sleep(1);
                 continue;
             }
 
@@ -226,7 +229,8 @@ public sealed class DirectoryScanner : IScanner
                 continue;
             }
 
-            queue.Enqueue(new DirectoryWorkItem(childId, childPath, work.Depth + 1));
+            var childWork = new DirectoryWorkItem(childId, childPath, work.Depth + 1);
+            queue.Add(childWork);
         }
         while (enumerator.MoveNext());
 

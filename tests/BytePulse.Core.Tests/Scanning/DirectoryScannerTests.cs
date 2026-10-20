@@ -132,13 +132,15 @@ public sealed class DirectoryScannerTests : IDisposable
     }
 
     [Fact]
-    public void StopsPromptlyWhenCancelledMidScan()
+    public async Task StopsWhenCancelledMidScan()
     {
-        // A tree with enough files in it that the scan cannot finish instantly.
+        // A tree large enough that the scan cannot possibly have finished by the time the
+        // cancel fires.
         for (int d = 0; d < 40; d++)
         {
             string directory = Path.Combine(_root, $"dir{d}");
             Directory.CreateDirectory(directory);
+
             for (int f = 0; f < 100; f++)
             {
                 File.WriteAllBytes(Path.Combine(directory, $"file{f}.dat"), new byte[64]);
@@ -146,10 +148,12 @@ public sealed class DirectoryScannerTests : IDisposable
         }
 
         using var cancellation = new CancellationTokenSource();
-        cancellation.CancelAfter(TimeSpan.FromMilliseconds(20));
+        cancellation.CancelAfter(TimeSpan.FromMilliseconds(5));
 
         var stopwatch = Stopwatch.StartNew();
-        ScanResult result = new DirectoryScanner().Scan(new[] { _root }, cancellationToken: cancellation.Token);
+        ScanResult result = await new DirectoryScanner().ScanAsync(
+            new[] { _root },
+            cancellationToken: cancellation.Token);
         stopwatch.Stop();
 
         Assert.False(result.IsComplete);
@@ -226,6 +230,43 @@ public sealed class DirectoryScannerTests : IDisposable
             new ScanOptions { MaxDepth = 1 });
 
         Assert.Equal(0, result.Tree.TotalFileCount);
+    }
+
+    [Fact]
+    public async Task FinishesAWideTree()
+    {
+        // A tree wide enough that the workers spend most of their time handing work to
+        // each other, which is where a scan that never finishes would show up.
+        const int Outer = 30;
+        const int Inner = 30;
+        const int FilesPerDirectory = 4;
+
+        for (int a = 0; a < Outer; a++)
+        {
+            for (int b = 0; b < Inner; b++)
+            {
+                string directory = Path.Combine(_root, $"a{a}", $"b{b}");
+                Directory.CreateDirectory(directory);
+
+                for (int f = 0; f < FilesPerDirectory; f++)
+                {
+                    File.WriteAllBytes(Path.Combine(directory, $"f{f}.dat"), new byte[8]);
+                }
+            }
+        }
+
+        Task<ScanResult> scan = new DirectoryScanner().ScanAsync(
+            new[] { _root },
+            new ScanOptions { ThreadCount = 8 });
+
+        Task finished = await Task.WhenAny(scan, Task.Delay(TimeSpan.FromSeconds(90)));
+
+        Assert.Same(scan, finished);
+
+        ScanResult result = await scan;
+
+        Assert.Equal(Outer * Inner * FilesPerDirectory, result.Tree.TotalFileCount);
+        Assert.Equal(Outer + (Outer * Inner), result.Tree.TotalDirectoryCount);
     }
 
     private void BuildSampleTree()
