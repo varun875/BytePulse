@@ -17,7 +17,7 @@ namespace BytePulse
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
             AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            AppWindow.SetIcon("Assets/AppIcon.ico");
+            AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico"));
 
             AppState.ScanSession.ScanRequested += OnScanRequested;
         }

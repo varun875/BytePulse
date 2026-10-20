@@ -46,6 +46,16 @@ The repository has an `.editorconfig`; formatting is enforced by it. Beyond that
   comment should say why it is done that way.
 - Keep unrelated changes out of a pull request.
 
+## Icons
+
+The images in `src/BytePulse.App/Assets` are generated from one drawing. Change the
+drawing in `scripts/make-icons.ps1` and run it rather than editing the PNGs by hand, so
+every size stays consistent:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\make-icons.ps1
+```
+
 ## Benchmarks
 
 If your change touches scanning, run the benchmarks before and after and include
