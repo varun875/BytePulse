@@ -55,7 +55,19 @@ dotnet test  BytePulse.slnx -c Release
 dotnet run --project src/BytePulse.App
 ```
 
-To produce a self-contained folder that runs on a machine with no .NET installed:
+### Releases
+
+`scripts/publish.ps1` builds both things a release consists of: the
+self-contained folder, zipped, and the MSIX package.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\publish.ps1
+```
+
+It writes to `artifacts/`. Pass `-PortableOnly` to skip the package, `-Runtime
+win-arm64` for ARM, and `-CertificatePath` to sign the package.
+
+To produce a self-contained folder by hand:
 
 ```powershell
 dotnet publish src/BytePulse.App -c Release -r win-x64 `
@@ -63,7 +75,7 @@ dotnet publish src/BytePulse.App -c Release -r win-x64 `
   -o publish/portable
 ```
 
-To produce an MSIX package instead:
+To produce an MSIX package by hand:
 
 ```powershell
 dotnet publish src/BytePulse.App -c Release -r win-x64 `
@@ -71,7 +83,7 @@ dotnet publish src/BytePulse.App -c Release -r win-x64 `
 ```
 
 The package is written to `AppPackages`. Signing is off by default; set
-`AppPublishSigningEnabled` and point it at a certificate to sign a release.
+`AppxPackageSigningEnabled` and point it at a certificate to sign a release.
 
 ## Command line
 
@@ -86,6 +98,8 @@ bytepulse scan <path> [options]
   --top <n>         how many entries the summary lists
   --follow-reparse  follow junctions and symbolic links
   --no-hidden       leave hidden and system files out
+  --size-on-disk    read how much space each file occupies on disk
+  --hardlinks       count a file with several hard links once
   --version         print the version
 ```
 
@@ -146,9 +160,10 @@ is included in the self-contained build.
 
 ## Status
 
-Working: the engine, the command line tool, the grid in the application, and the
-benchmarks. Not yet built: the donut and treemap views, size on disk, hardlink and
-duplicate detection, and the privileged NTFS mode.
+Working: the engine, the command line tool, the grid in the application, the ring
+chart beside it, the treemap on the Map page, size on disk, and hard link
+detection. Not yet built: duplicate detection, the privileged NTFS mode, and
+resizable columns.
 
 ## Licence
 
