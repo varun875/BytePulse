@@ -28,7 +28,6 @@ internal static class ScanCommand
         var hiddenOption = new Option<bool>("--no-hidden") { Description = "Leave hidden and system files out." };
         var sizeOnDiskOption = new Option<bool>("--size-on-disk") { Description = "Read how much space each file occupies on disk." };
         var hardlinkOption = new Option<bool>("--hardlinks") { Description = "Count a file with several hard links once." };
-        var versionOption = new Option<bool>("--version") { Description = "Print the version and exit." };
 
         command.Arguments.Add(pathArgument);
         command.Options.Add(jsonOption);
@@ -41,16 +40,9 @@ internal static class ScanCommand
         command.Options.Add(hiddenOption);
         command.Options.Add(sizeOnDiskOption);
         command.Options.Add(hardlinkOption);
-        command.Options.Add(versionOption);
 
         command.SetAction(async (parseResult, cancellationToken) =>
         {
-            if (parseResult.GetValue(versionOption))
-            {
-                Console.WriteLine(VersionInformation.Text);
-                return 0;
-            }
-
             string? path = parseResult.GetValue(pathArgument);
             if (string.IsNullOrWhiteSpace(path))
             {
