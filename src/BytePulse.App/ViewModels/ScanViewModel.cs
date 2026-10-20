@@ -77,6 +77,18 @@ public partial class ScanViewModel : ObservableObject
     [ObservableProperty]
     public partial int ErrorCount { get; set; }
 
+    /// <summary>Whether some folders could not be read.</summary>
+    [ObservableProperty]
+    public partial bool HasUnreadableFolders { get; set; }
+
+    /// <summary>What to say about the folders that could not be read.</summary>
+    [ObservableProperty]
+    public partial string UnreadableSummary { get; set; } = string.Empty;
+
+    /// <summary>Whether restarting with administrator rights could read more.</summary>
+    [ObservableProperty]
+    public partial bool CanElevate { get; set; }
+
     /// <summary>The column the results are sorted by.</summary>
     [ObservableProperty]
     public partial string SortColumn { get; set; } = Services.SettingsStore.Current.SortColumn;
@@ -140,6 +152,8 @@ public partial class ScanViewModel : ObservableObject
             TotalFiles = result.Tree.TotalFileCount;
             TotalDirectories = result.Tree.TotalDirectoryCount;
             ErrorCount = result.Errors.Count;
+
+            DescribeUnreadableFolders(result);
 
             RebuildRows();
 
@@ -238,6 +252,26 @@ public partial class ScanViewModel : ObservableObject
         Services.AppSettings settings = Services.SettingsStore.Current.Clone();
         settings.SortColumn = value;
         Services.SettingsStore.Save(settings);
+    }
+
+    private void DescribeUnreadableFolders(ScanResult result)
+    {
+        int denied = result.Errors.Count(error => error.Kind == ScanErrorKind.AccessDenied);
+
+        HasUnreadableFolders = denied > 0;
+        CanElevate = denied > 0 && !Core.Hosting.Elevation.IsElevated;
+
+        if (denied == 0)
+        {
+            UnreadableSummary = string.Empty;
+            return;
+        }
+
+        string count = $"{denied:N0} {(denied == 1 ? "folder" : "folders")} could not be read";
+
+        UnreadableSummary = Core.Hosting.Elevation.IsElevated
+            ? $"{count}, even with administrator rights. These are usually reserved for the system itself, such as System Volume Information."
+            : $"{count}, so the total is lower than the real figure. Restarting with administrator rights usually reads most of them.";
     }
 
     private void OnProgress(ScanProgress progress)

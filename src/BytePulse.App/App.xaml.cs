@@ -32,10 +32,31 @@ namespace BytePulse
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            ApplyCommandLine();
+
             _window = new MainWindow();
             _window.Activate();
 
             MainWindow = _window;
+        }
+
+        /// <summary>
+        /// Takes the path a restarted instance was asked to scan, if there was one, so
+        /// that asking for administrator rights does not also mean asking for the path
+        /// again.
+        /// </summary>
+        private static void ApplyCommandLine()
+        {
+            string[] arguments = Environment.GetCommandLineArgs();
+
+            for (int i = 0; i < arguments.Length - 1; i++)
+            {
+                if (arguments[i].Equals("--scan", StringComparison.OrdinalIgnoreCase))
+                {
+                    AppState.ScanSession.RequestScan(arguments[i + 1]);
+                    return;
+                }
+            }
         }
 
         /// <summary>

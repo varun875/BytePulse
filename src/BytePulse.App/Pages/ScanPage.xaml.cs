@@ -63,6 +63,22 @@ public sealed partial class ScanPage : Page
 
     private void OnSortModified(object sender, RoutedEventArgs e) => ViewModel.SortByCommand.Execute("Modified");
 
+    /// <summary>
+    /// Starts the application again with administrator rights, asking it to scan the same
+    /// path, so the folders that were refused can be read.
+    /// </summary>
+    private void OnRestartElevated(object sender, RoutedEventArgs e)
+    {
+        if (Core.Hosting.Elevation.RestartElevated(ViewModel.Path))
+        {
+            Application.Current.Exit();
+        }
+        else
+        {
+            ViewModel.StatusText = "The restart was declined, so the scan stayed as it was.";
+        }
+    }
+
     private async void OnBrowse(object sender, RoutedEventArgs e)
     {
         var picker = new Windows.Storage.Pickers.FolderPicker();

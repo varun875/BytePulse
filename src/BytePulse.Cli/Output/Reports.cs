@@ -115,6 +115,8 @@ internal static class SummaryReport
             return;
         }
 
+        int denied = result.Errors.Count(error => error.Kind == ScanErrorKind.AccessDenied);
+
         Console.WriteLine();
         Console.WriteLine($"  {result.Errors.Count:N0} directories could not be read:");
 
@@ -126,6 +128,17 @@ internal static class SummaryReport
         if (result.Errors.Count > 10)
         {
             Console.WriteLine($"    ... and {result.Errors.Count - 10:N0} more");
+        }
+
+        if (denied > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine(
+                $"  {denied:N0} of them were access denied, so the total is lower than the real figure.");
+            Console.WriteLine(
+                Core.Hosting.Elevation.IsElevated
+                    ? "  These are reserved for the system itself and stay refused even as an administrator."
+                    : "  Run BytePulse as administrator to read most of them.");
         }
     }
 

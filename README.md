@@ -145,6 +145,17 @@ scan returns the part of the tree it managed to read.
 "Sizes" means the logical size of the files. Directories report no size of their
 own on NTFS, so a folder's total is the sum of the files beneath it.
 
+### Folders that cannot be read
+
+Some folders are refused even to ordinary users, and on a system volume that adds up
+to a meaningful amount of space. BytePulse never hides this: a scan reports how many
+folders it could not read and says that the total is lower than the real figure.
+
+The application offers to restart itself with administrator rights, which reads most
+of them. A few are reserved for the system itself, such as `System Volume
+Information`, and stay refused even then; the scan says so rather than pretending
+they are empty.
+
 ### Links and loops
 
 Reparse points, such as junctions and symbolic links, are not followed by default,

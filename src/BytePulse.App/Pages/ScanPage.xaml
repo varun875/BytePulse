@@ -22,7 +22,7 @@
         </Style>
     </Page.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="12,8,12,0">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" Padding="12,8,12,0">
 
         <CommandBar Grid.Row="0" DefaultLabelPosition="Right" HorizontalAlignment="Left" Background="Transparent" Margin="0,0,0,4">
             <AppBarButton Icon="Play" Label="Scan" Command="{x:Bind ViewModel.ScanCommand}" />
@@ -39,14 +39,31 @@
             <Button Grid.Column="1" Content="Browse..." Click="OnBrowse" Margin="8,0,0,0" />
         </Grid>
 
-        <Grid Grid.Row="2" ColumnDefinitions="*,90,70,130" ColumnSpacing="8" Margin="0,0,0,4">
+        <InfoBar
+            Grid.Row="2"
+            x:Name="UnreadableBar"
+            IsOpen="{x:Bind ViewModel.HasUnreadableFolders, Mode=OneWay}"
+            IsClosable="True"
+            Severity="Warning"
+            Title="Some folders could not be read"
+            Message="{x:Bind ViewModel.UnreadableSummary, Mode=OneWay}"
+            Margin="0,0,0,8">
+            <InfoBar.ActionButton>
+                <Button
+                    Content="Restart as administrator"
+                    Click="OnRestartElevated"
+                    Visibility="{x:Bind ViewModel.CanElevate, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
+            </InfoBar.ActionButton>
+        </InfoBar>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,90,70,130" ColumnSpacing="8" Margin="0,0,0,4">
             <Button Grid.Column="0" Content="Name" Style="{StaticResource HeaderButton}" Click="OnSortName" />
             <Button Grid.Column="1" Content="Size" Style="{StaticResource HeaderButton}" Click="OnSortSize" HorizontalContentAlignment="Right" />
             <Button Grid.Column="2" Content="Files" Style="{StaticResource HeaderButton}" Click="OnSortFiles" HorizontalContentAlignment="Right" />
             <Button Grid.Column="3" Content="Modified" Style="{StaticResource HeaderButton}" Click="OnSortModified" />
         </Grid>
 
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto">
         <ListView
             Grid.Column="0"
             x:Name="ResultsList"
@@ -90,7 +107,7 @@
         </ScrollViewer>
         </Grid>
 
-        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,8,0,12">
+        <Grid Grid.Row="5" ColumnDefinitions="*,Auto" Margin="0,8,0,12">
             <TextBlock
                 Grid.Column="0"
                 Text="{x:Bind ViewModel.StatusText}"
