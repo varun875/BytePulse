@@ -69,8 +69,12 @@
 
   <!-- Publish Properties -->
   <PropertyGroup>
-    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <!--
+      ReadyToRun is opt-in: it needs the runtime pack for the target architecture to have
+      been restored, so it is turned on explicitly by whoever knows they are publishing
+      for a specific runtime rather than being forced on every publish.
+    -->
+    <PublishReadyToRun Condition="'$(PublishReadyToRun)' == ''">false</PublishReadyToRun>
     <!--
       Trimming is not supported for Windows App SDK / WinUI 3 apps: the framework relies on
       reflection and native activation that the IL Linker cannot see. Enabling it also

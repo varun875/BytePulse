@@ -51,7 +51,6 @@ dotnet publish $app `
     -p:WindowsPackageType=None `
     -p:SelfContained=true `
     -p:WindowsAppSDKSelfContained=true `
-    -p:PublishReadyToRun=true `
     -o (Join-Path $output "app-$rid") | Out-Host
 
 Write-Host "Building the command line tool for $rid..."
