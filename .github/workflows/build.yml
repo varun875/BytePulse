@@ -1,0 +1,68 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore BytePulse.slnx
+
+      - name: Build
+        run: dotnet build BytePulse.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test BytePulse.slnx -c Release --no-build --logger "trx;LogFileName=results.trx"
+
+      - name: Publish the portable build
+        run: >
+          dotnet publish src/BytePulse.App/BytePulse.csproj
+          -c Release
+          -r win-x64
+          -p:WindowsPackageType=None
+          -p:SelfContained=true
+          -p:WindowsAppSDKSelfContained=true
+          -o publish/portable
+
+      - name: Publish the command line tool
+        run: >
+          dotnet publish src/BytePulse.Cli/BytePulse.Cli.csproj
+          -c Release
+          -r win-x64
+          -p:PublishSingleFile=true
+          -p:SelfContained=true
+          -o publish/cli
+
+      - name: Zip the portable build
+        shell: pwsh
+        run: Compress-Archive -Path publish/portable/* -DestinationPath BytePulse-win-x64.zip
+
+      - name: Upload the portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: BytePulse-win-x64
+          path: |
+            BytePulse-win-x64.zip
+            publish/cli/bytepulse.exe
+
+      - name: Upload the test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/results.trx"

@@ -62,3 +62,7 @@ Generated\ Files/
 BenchmarkDotNet.Artifacts/
 tests/**/BenchmarkDotNet.Artifacts/
 
+
+# Published builds
+artifacts/
+
